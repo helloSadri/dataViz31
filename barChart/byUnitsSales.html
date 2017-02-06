@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>U.S. Recorded Music Sales Volumes</title>
+	<link rel="stylesheet" href="main.css">
+	<script  type="text/javascript" src="d3.min.js"></script>
+</head>
+<body>
+
+	<script>
+		var data = [
+
+		{key: "1973",  unitsSales:  616.2},
+		{key: "1974",  unitsSales:  593.9},
+		{key: "1975",  unitsSales:  533.3},
+		{key: "1976",  unitsSales:  591.6},
+		{key: "1977",  unitsSales:  698.2},
+		{key: "1978",  unitsSales:  726.2},
+		{key: "1979",  unitsSales:  682.8},
+		{key: "1980",  unitsSales:  649},
+		{key: "1981",  unitsSales:  623.9},
+		{key: "1982",  unitsSales:  578},
+		{key: "1983",  unitsSales:  572},
+		{key: "1984",  unitsSales:  673.9},
+		{key: "1985",  unitsSales:  649.4},
+		{key: "1986",  unitsSales:  615.7},
+		{key: "1987",  unitsSales:  706.1},
+		{key: "1988",  unitsSales:  761.9},
+		{key: "1989",  unitsSales:  806.8},
+		{key: "1990",  unitsSales:  865.7},
+		{key: "1991",  unitsSales:  801},
+		{key: "1992",  unitsSales:  895.5},
+		{key: "1993",  unitsSales:  955.6},
+		{key: "1994",  unitsSales:  1122.7},
+		{key: "1995",  unitsSales:  1112.7},
+		{key: "1996",  unitsSales:  1137.2},
+		{key: "1997",  unitsSales:  1063.4},
+		{key: "1998",  unitsSales:  1123.9},
+		{key: "1999",  unitsSales:  1160.6},
+		{key: "2000",  unitsSales:  1079.2},
+		{key: "2001",  unitsSales:  968.5},
+		{key: "2002",  unitsSales:  859.6},
+		{key: "2003",  unitsSales:  798.4},
+		{key: "2004",  unitsSales:  958.1},
+		{key: "2005",  unitsSales:  1303.2},
+		{key: "2006",  unitsSales:  1590.1},
+		{key: "2007",  unitsSales:  1853.3},
+		{key: "2008",  unitsSales:  1921.2},
+		{key: "2010",  unitsSales:  1521.1},
+		{key: "2011",  unitsSales: 	1312.7},
+		];
+		var w = 1500;
+		var h = 900;
+		var margin = {
+			top: 58,
+			bottom: 50,
+			left: 80,
+			right: 40
+		};
+		var width = w - margin.left - margin.right;
+		var height = h - margin.top - margin.bottom;
+
+		var x = d3.scale.ordinal()
+		.domain(data.map(function(entry){
+			return entry.key;
+		}))
+		.rangeBands([0, width]);
+		var y = d3.scale.linear()
+		.domain([0, d3.max(data, function(d){
+			return d.unitsSales;
+		})])
+		.range([height, 0]);
+		var ordinalColorScale = d3.scale.category20();
+		var xAxis = d3.svg.axis()
+		.scale(x)
+		.orient("bottom");
+		var yAxis = d3.svg.axis()
+		.scale(y)
+		.orient("left");
+		var yGridlines = d3.svg.axis()
+		.scale(y)
+		.tickSize(-width,0,0)
+		.tickFormat("")
+		.orient("left");
+		var svg = d3.select("body").append("svg")
+		.attr("id", "chart")
+		.attr("width", w)
+		.attr("height", h);
+		var chart = svg.append("g")
+		.classed("display", true)
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+		var controls = d3.select("body")
+		.append("div")
+		.attr("id", "controls");
+		var sort_btn = controls.append("button")
+		.html("Sort data: ascending")
+		.attr("state", 0);
+		function drawAxis(params){
+
+			if(params.initialize === true){
+		//Draw the gridlines and axes
+		//Draw the gridlines
+		this.append("g")
+		.call(params.gridlines)
+		.classed("gridline", true)
+		.attr("transform", "translate(0,0)")
+
+		//This is the x axis
+		this.append("g")
+		.classed("x axis", true)
+		.attr("transform", "translate(" + 0 + "," + height + ")")
+		.call(params.axis.x)
+		.selectAll("text")
+		.classed("x-axis-label", true)
+		.style("text-anchor", "end")
+		.attr("dx", -8)
+		.attr("dy", 8)
+		.attr("transform", "translate(0,0) rotate(-45)");
+
+		//This is the y axis
+		this.append("g")
+		.classed("y axis", true)
+		.attr("transform", "translate(0,0)")
+		.call(params.axis.y);
+
+		//This is the y label
+		this.select(".y.axis")
+		.append("text")
+		.attr("x", 0)
+		.attr("y", 0)
+		.style("text-anchor", "middle")
+		.attr("transform", "translate(-50," + height/2 + ") rotate(-90)")
+		.text("Units (Millions)");
+
+		//This is the x label
+		this.select(".x.axis")
+		.append("text")
+		.attr("x", 0)
+		.attr("y", 0)
+		.style("text-anchor", "middle")
+		.attr("transform", "translate(" + width/2 + ",80)")
+		.text(" ");
+
+	} else if(params.initialize === false){
+		//Update info
+		this.selectAll("g.x.axis")
+		.transition()
+		.duration(500)
+		.ease("bounce")
+		.delay(500)
+		.call(params.axis.x);
+		this.selectAll(".x-axis-label")
+		.style("text-anchor", "end")
+		.attr("dx", -8)
+		.attr("dy", 8)
+		.attr("transform", "translate(0,0) rotate(-45)");
+		this.selectAll("g.y.axis")
+		.transition()
+		.duration(500)
+		.ease("bounce")
+		.delay(500)
+		.call(params.axis.y);
+	}
+}
+function plot(params){
+	x.domain(data.map(function(entry){
+		return entry.key;
+	}));
+	y.domain([0, d3.max(data, function(d){
+		return d.unitsSales;
+	})]);
+
+	//Draw the axes and axes labels
+	drawAxis.call(this, params);
+
+	//enter()
+	this.selectAll(".bar")
+	.data(params.data)
+	.enter()
+	.append("rect")
+	.classed("bar", true)
+	.on("mouseover", function(d,i){
+		d3.select(this).style("fill", "yellow");
+	})
+	.on("mousemove", function(d,i){
+
+	})
+	.on("mouseout", function(d,i){
+		d3.select(this).style("fill", ordinalColorScale(i));
+	});
+
+	this.selectAll(".bar-label")
+	.data(params.data)
+	.enter()
+	.append("text")
+	.classed("bar-label", true);
+	
+	//update
+	this.selectAll(".bar")
+	.transition()
+	.attr("x", function(d,i){
+		return x(d.key);
+	})
+	.attr("y", function(d,i){
+		return y(d.unitsSales);
+	})
+	.attr("height", function(d,i){
+		return height - y(d.unitsSales);
+	})
+	.attr("width", function(d){
+		return x.rangeBand();
+	})
+	.style("fill", function(d,i){
+		return ordinalColorScale(i);
+	});
+
+	this.selectAll(".bar-label")
+	.transition()
+	.attr("x", function(d,i){
+		return x(d.key) + (x.rangeBand()/2)
+	})
+	.attr("dx", 0)
+	.attr("y", function(d,i){
+		return y(d.unitsSales);
+	})
+	.attr("dy", -6)
+	.text(function(d){
+		return d.unitsSales;
+	})
+
+	//exit()
+	this.selectAll(".bar")
+	.data(params.data)
+	.exit()
+	.remove();
+
+	this.selectAll(".bar-label")
+	.data(params.data)
+	.exit()
+	.remove();
+}
+
+sort_btn.on("click", function(){
+	var self = d3.select(this);
+	var ascending = function(a,b){
+		return a.unitsSales - b.unitsSales;
+	};
+	var descending = function(a,b){
+		return b.unitsSales - a.unitsSales;
+	}
+	var state = +self.attr("state");
+	var txt = "Sort data: ";
+	if(state === 0){
+		data.sort(ascending);
+		state = 1;
+		txt += "descending";
+	} else if(state === 1){
+		data.sort(descending);
+		state = 0;
+		txt += "ascending";
+	}
+	self.attr("state", state);
+	self.html(txt);
+
+	plot.call(chart, {
+		data: data,
+		axis:{
+			x: xAxis,
+			y: yAxis
+		},
+		gridlines: yGridlines,
+		initialize: false
+	});
+});
+
+plot.call(chart, {
+	data: data,
+	axis:{
+		x: xAxis,
+		y: yAxis
+	},
+	gridlines: yGridlines,
+	initialize: true
+});
+</script>	
+</body>
+</html>
