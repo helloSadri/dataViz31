@@ -8,7 +8,7 @@ Source :
 <http://benfry.com/phd/dissertation-110323c.pdf>
 
 .Mike Bostock
-<https://bost.ocks.org/mike/ >
+<https://bost.ocks.org/mike/>
 
 .Jeffrey Michael Heer
 <https://homes.cs.washington.edu/~jheer/>
